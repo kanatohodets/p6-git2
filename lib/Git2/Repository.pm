@@ -43,8 +43,17 @@ class Repository is export {
     sub is-bare(git-repo) returns int is native("libgit2") is symbol('git_repository_is_bare') { ... };
     method is-bare() { is-bare(*-in-c $!repo).Bool };
 
-    sub discover-repo(CArray, Str, int, Str) is native("libgit2") is symbol('git_repository_discover') { ... };
-    method discover(Str $path) {
+    my class git-buffer is repr('CStruct') {
+        has Str $.ptr;
+        has uint $.size;
+        has uint $.asize;
+    }
 
+    sub discover-repo(git-buffer, Str, int, Str) returns int is native("libgit2") is symbol('git_repository_discover') { ... };
+    method discover(Str $path, Bool $across-fs = False, Str $ceiling-dirs = '') {
+        my $git-buf = git-buffer.new();
+        my $ret = discover-repo($git-buf, $path, $across-fs.Int, $ceiling-dirs);
+        die "failure discovering repo: $ret" unless $ret == 0;
+        return $git-buf.ptr;
     }
 }
