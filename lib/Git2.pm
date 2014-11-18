@@ -16,3 +16,17 @@ sub prefix:<&-in-c >($native-thing) is export(:util) {
     $arr[0] = $native-thing;
     return $arr;
 }
+
+sub create-flag-mask(%mapping, *@flags) is export(:util) {
+    my $flag-mask = 0;
+    for @flags -> $flag-name {
+        if $flag-name {
+            if %mapping{$flag-name}:exists {
+                $flag-mask +|= %mapping{$flag-name};
+            } else {
+                die "unknown flag name \"$flag-name\". \nValid flags: \n\t{%mapping.keys.join("\n\t")}";
+            }
+        }
+    }
+    return $flag-mask;
+}

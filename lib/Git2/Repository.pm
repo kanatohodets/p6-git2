@@ -29,10 +29,21 @@ class Repository is export {
         return Repository.new(:$repo);
     }
 
-    sub open-repo(CArray[git-repo], Str) returns int is native("libgit2") is symbol('git_repository_open') { ... };
-    method open (Str $path) {
+    sub open-repo-ext(CArray[git-repo], Str, int, Str)
+        returns int
+        is native("libgit2")
+        is symbol('git_repository_open_ext') { ... };
+
+    my %open-flags = (
+        no-search       => 1 +< 0,
+        open-cross-fs   => 1 +< 1,
+        open-bare       => 1 +< 2
+    );
+
+    method open (Str $path, @flags = [<no-search>], $ceiling-dirs = '') {
         my $repo = &-in-c git-repo;
-        my $ret = open-repo($repo, $path);
+        my $flag-mask = create-flag-mask %open-flags, @flags;
+        my $ret = open-repo-ext($repo, $path, $flag-mask, $ceiling-dirs);
         die "failed to open!" unless $ret == 0;
         return Repository.new(:$repo);
     }
