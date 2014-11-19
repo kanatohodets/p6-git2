@@ -8,7 +8,6 @@ my $repo = Repository.clone('https://github.com/sillymoose/Perl6-One-Liners.git'
 say $repo;
 say "is the cloned repo bare? {$repo.is-bare}";
 say "is the cloned repo empty? {$repo.is-empty}";
-);
 
 my $repo = Repository.open('foobar');
 say $repo;
@@ -16,3 +15,8 @@ say "is the opened repo empty? {$repo.is-empty}";
 say "is the opened repo bare? {$repo.is-bare}";
 
 say Repository.discover("foobar/blorg/baz");
+);
+
+my $repo = Repository.init("blorg-init.git");
+say "is the created repo empty? {$repo.is-empty}";
+say "is the created repo empty? {$repo.is-bare}";
