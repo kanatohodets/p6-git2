@@ -50,7 +50,7 @@ class Repository is export {
         # for some insane reason this is dying with a permissions error in
         # git_futils_mkdir. it works when run as sudo. I do not understand.
         my $ret = init-repo-ext($repo, $path, $init-options);
-        die "failed to init: $ret" unless $ret == 0;
+        fail "failed to init: $ret" unless $ret == 0;
         Repository.new(:$repo);
     }
 
@@ -60,7 +60,7 @@ class Repository is export {
     method clone (Str $url, Str $path) {
         my $repo := &-in-c git-repo;
         my $ret = clone-repo($repo, $url, $path, OpaquePointer.new());
-        die "failed to clone!" unless $ret == 0;
+        fail "failed to clone!" unless $ret == 0;
         return Repository.new(:$repo);
     }
 
@@ -79,7 +79,7 @@ class Repository is export {
         my $repo = &-in-c git-repo;
         my $flag-mask = create-flag-mask %open-flags, @flags;
         my $ret = open-repo-ext($repo, $path, $flag-mask, $ceiling-dirs);
-        die "failed to open!" unless $ret == 0;
+        fail "failed to open!" unless $ret == 0;
         return Repository.new(:$repo);
     }
 
@@ -99,7 +99,7 @@ class Repository is export {
     method discover(Str $path, Bool $across-fs = False, Str $ceiling-dirs = '') {
         my $git-buf = git-buffer.new();
         my $ret = discover-repo($git-buf, $path, $across-fs.Int, $ceiling-dirs);
-        die "failure discovering repo: $ret" unless $ret == 0;
+        fail "failure discovering repo: $ret" unless $ret == 0;
         return $git-buf.ptr;
     }
 }
