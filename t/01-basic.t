@@ -1,6 +1,7 @@
 use v6;
 use NativeCall;
 use lib 'lib';
+use Git2;
 use Git2::Repository;
 
 #`(
@@ -18,5 +19,6 @@ say Repository.discover("foobar/blorg/baz");
 );
 
 my $repo = Repository.init("blorg-init.git");
+say "thing thing thing?", Git2.last-error();
 say "is the created repo empty? {$repo.is-empty}";
 say "is the created repo empty? {$repo.is-bare}";

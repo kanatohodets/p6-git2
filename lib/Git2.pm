@@ -30,3 +30,13 @@ sub create-flag-mask(%mapping, *@flags) is export(:util) {
     }
     return $flag-mask;
 }
+
+class Git2 is export {
+    my class git-err is repr('CStruct') {
+        has Str $.message;
+        has int $.klass;
+    }
+
+    my sub git-last-err() returns git-err is native("libgit2") is symbol("giterr_last") { ... };
+    method last-error() { git-last-err().message; }
+}
