@@ -38,5 +38,8 @@ class Git2 is export {
     }
 
     my sub git-last-err() returns git-err is native("libgit2") is symbol("giterr_last") { ... };
-    method last-error() { git-last-err().message; }
+    method last-error() {
+        my $err = git-last-err();
+        $err.message if $err;
+    }
 }

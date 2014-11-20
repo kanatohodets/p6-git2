@@ -24,7 +24,7 @@ class Repository is export {
     # need to create git-init struct and pass pointer to that, it has a flags
     # field for the mask with option flags
     my class repo-init-options is repr("CStruct") {
-        has uint $!version;
+        has int32 $!version;
         has uint32 $!flags;
         has uint32 $!mode;
         has Str $!workdir-path;

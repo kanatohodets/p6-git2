@@ -19,6 +19,6 @@ say Repository.discover("foobar/blorg/baz");
 );
 
 my $repo = Repository.init("blorg-init.git");
-say "thing thing thing?", Git2.last-error();
+say "thing thing thing? ", Git2.last-error();
 say "is the created repo empty? {$repo.is-empty}";
-say "is the created repo empty? {$repo.is-bare}";
+say "is the created repo bare? {$repo.is-bare}";
