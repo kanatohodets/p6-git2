@@ -1,6 +1,7 @@
 use v6;
 use NativeCall;
 use Git2 :util;
+use Git2;
 
 module Git2::Repository;
 
@@ -24,13 +25,15 @@ class Repository is export {
     # need to create git-init struct and pass pointer to that, it has a flags
     # field for the mask with option flags
     my class repo-init-options is repr("CStruct") {
-        has int32 $!version;
+        has uint32 $!version;
         has uint32 $!flags;
         has uint32 $!mode;
         has Str $!workdir-path;
         has Str $!description;
         has Str $!template-path;
+        has Str $!initial-head;
         has Str $!origin-url;
+
         submethod BUILD(:$version, :$flags) {
             $!version = $version;
             $!flags = $flags;
@@ -43,14 +46,16 @@ class Repository is export {
         is native("libgit2")
         is symbol('git_repository_init_ext') { ... };
 
-    method init (Str $path, @flags = [<mkdir mkpath>]) {
+    method init (Str $path, @flags = [<mkpath>]) {
         my $repo = &-in-c git-repo;
         my $flag-mask = create-flag-mask %init-flag-defs, @flags;
         my $init-options = repo-init-options.new(version => 1, flags => $flag-mask);
-        # for some insane reason this is dying with a permissions error in
-        # git_futils_mkdir. it works when run as sudo. I do not understand.
         my $ret = init-repo-ext($repo, $path, $init-options);
-        fail "failed to init: $ret" unless $ret == 0;
+        if $ret != 0 {
+            my $message = Git2.last-error();
+            die $message if $message;;
+            die "failed to initialize repository, but no libgit2 error message was found. libgit2 return code: $ret";
+        }
         Repository.new(:$repo);
     }
 
