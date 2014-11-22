@@ -17,6 +17,10 @@ sub prefix:<&-in-c >($native-thing) is export(:util) {
     return $arr;
 }
 
+sub create-flag-defs(@flags) is export(:util) {
+    @flags.kv.map(-> $index, $flag {$flag => 2 ** $index});
+}
+
 sub create-flag-mask(%mapping, *@flags) is export(:util) {
     my $flag-mask = 0;
     for @flags -> $flag-name {
@@ -29,6 +33,12 @@ sub create-flag-mask(%mapping, *@flags) is export(:util) {
         }
     }
     return $flag-mask;
+}
+
+class GitBuffer is repr('CStruct') is export(:util) {
+    has Str $.ptr;
+    has uint $.size;
+    has uint $.asize;
 }
 
 class Git2 is export {
