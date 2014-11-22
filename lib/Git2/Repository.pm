@@ -65,6 +65,15 @@ class Repository is export {
         return Repository.new(:$repo);
     }
 
+    method is-path-repo(Str $path, @flags = [<no-search>], $ceiling-dirs = '') {
+        # NULL is represented by a type object
+        my $null = GitRepo;
+        my $flag-mask = create-flag-mask %open-flags, @flags;
+        my $ret = open-repo-ext($null, $path, $flag-mask, $ceiling-dirs);
+        return True if $ret == 0;
+        return False;
+    }
+
     sub is-empty(GitRepo)
         returns int
         is native("libgit2")
