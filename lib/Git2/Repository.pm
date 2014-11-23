@@ -88,6 +88,13 @@ class Repository is export {
 
     method is-bare() { is-bare(*-in-c $!repo).Bool };
 
+    sub is-shallow(GitRepo)
+        returns int
+        is native("libgit2")
+        is symbol('git_repository_is_shallow') { ... };
+
+    method is-shallow() { is-shallow(*-in-c $!repo).Bool };
+
     sub discover-repo(GitBuffer, Str, int, Str)
         returns int
         is native("libgit2")

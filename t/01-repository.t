@@ -6,12 +6,19 @@ use Git2::Repository;
 use Test;
 use Shell::Command;
 
-sub examine-repo($repo, $path, :$name = '', :$should-be-bare = False, :$should-be-empty = True, :$should-be-defined = True) {
-    is $repo.isa(Repository), True, "$name repo is a Repository";
-    is !!$repo, $should-be-defined, "$name repo is defined";
-    is $repo.is-empty, $should-be-empty, "the new $name repo is empty";
-    is $repo.is-bare, $should-be-bare, "the new $name repo is { $should-be-bare ?? "" !! "NOT " }bare";
-    is Repository.is-path-repo($path), True, "is the path to the $name repo a repo?";
+sub examine-repo(
+    $repo, $path,
+    :$name = '',
+    :$should-be-bare = False,
+    :$should-be-empty = True,
+    :$should-be-defined = True,
+    :$should-be-shallow = False) {
+        is $repo.isa(Repository), True, "$name repo is a Repository";
+        is !!$repo, $should-be-defined, "$name repo is defined";
+        is $repo.is-empty, $should-be-empty, "the new $name repo is empty";
+        is $repo.is-bare, $should-be-bare, "the new $name repo is { $should-be-bare ?? "" !! "NOT " }bare";
+        is $repo.is-shallow, $should-be-shallow, "the new $name repo is { $should-be-shallow ?? "" !! "NOT " }a shallow clone";
+        is Repository.is-path-repo($path), True, "is the path to the $name repo a repo?";
 }
 
 {
