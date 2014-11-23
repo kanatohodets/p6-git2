@@ -45,6 +45,7 @@ my $successful-init = False;
         Repository.init($repo-location);
         my $repo = Repository.open($repo-location);
         examine-repo($repo, $repo-location, :name<opened>);
+        rm_rf $repo-location;
     }
 }
 
