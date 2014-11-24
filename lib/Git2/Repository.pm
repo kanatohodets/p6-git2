@@ -8,9 +8,9 @@ module Git2::Repository;
 
 class Repository is export {
     my class GitRepo is repr('CPointer') { };
-    has CArray $!repo;
+    has CArray $.repo-ptr;
 
-    submethod BUILD(:$!repo) { }
+    submethod BUILD(:$!repo-ptr) { }
 
     sub init-repo-ext(CArray[GitRepo], Str, InitOptions)
         returns int
@@ -21,16 +21,15 @@ class Repository is export {
         my $repo = &-in-c GitRepo;
         my $flag-mask = create-flag-mask %init-flags, @flags;
         my $init-options = InitOptions.new(version => 1, flags => $flag-mask);
-        my $ret = init-repo-ext($repo, $path, $init-options);
-        if $ret != 0 {
-            my $message = Git2.last-error();
-            die $message if $message;;
-            die "failed to initialize repository, but no libgit2 error message was found. libgit2 return code: $ret";
-        }
-        Repository.new(:$repo);
+
+        call-with-error('git_repository_init', sub {
+            init-repo-ext($repo, $path, $init-options);
+        });
+
+        Repository.new(repo-ptr => $repo);
     }
 
-    method gist() { *-in-c $!repo }
+    method gist() { *-in-c $!repo-ptr }
 
     sub clone-repo(CArray[GitRepo], Str, Str, OpaquePointer)
         returns int
@@ -39,13 +38,12 @@ class Repository is export {
 
     method clone (Str $url, Str $path) {
         my $repo := &-in-c GitRepo;
-        my $ret = clone-repo($repo, $url, $path, OpaquePointer.new());
-        if $ret != 0 {
-            my $message = Git2.last-error();
-            die $message if $message;;
-            die "failed to clone repository, but no libgit2 error message was found. libgit2 return code: $ret";
-        }
-        return Repository.new(:$repo);
+
+        call-with-error('git_clone', sub {
+            clone-repo($repo, $url, $path, OpaquePointer.new());
+        });
+
+        return Repository.new(repo-ptr => $repo);
     }
 
     sub open-repo-ext(CArray[GitRepo], Str, int, Str)
@@ -56,13 +54,12 @@ class Repository is export {
     method open(Str $path, @flags = [<no-search>], $ceiling-dirs = '') {
         my $repo = &-in-c GitRepo;
         my $flag-mask = create-flag-mask %open-flags, @flags;
-        my $ret = open-repo-ext($repo, $path, $flag-mask, $ceiling-dirs);
-        if $ret != 0 {
-            my $message = Git2.last-error();
-            die $message if $message;;
-            die "failed to open repository, but no libgit2 error message was found. libgit2 return code: $ret";
-        }
-        return Repository.new(:$repo);
+
+        call-with-error('git_repository_open', sub {
+            open-repo-ext($repo, $path, $flag-mask, $ceiling-dirs);
+        });
+
+        return Repository.new(repo-ptr => $repo);
     }
 
     method is-path-repo(Str $path, @flags = [<no-search>], $ceiling-dirs = '') {
@@ -79,21 +76,21 @@ class Repository is export {
         is native("libgit2")
         is symbol('git_repository_is_empty') { ... };
 
-    method is-empty() { is-empty(*-in-c $!repo).Bool };
+    method is-empty() { is-empty(*-in-c $!repo-ptr).Bool };
 
     sub is-bare(GitRepo)
         returns int
         is native("libgit2")
         is symbol('git_repository_is_bare') { ... };
 
-    method is-bare() { is-bare(*-in-c $!repo).Bool };
+    method is-bare() { is-bare(*-in-c $!repo-ptr).Bool };
 
     sub is-shallow(GitRepo)
         returns int
         is native("libgit2")
         is symbol('git_repository_is_shallow') { ... };
 
-    method is-shallow() { is-shallow(*-in-c $!repo).Bool };
+    method is-shallow() { is-shallow(*-in-c $!repo-ptr).Bool };
 
     sub discover-repo(GitBuffer, Str, int, Str)
         returns int
@@ -102,12 +99,11 @@ class Repository is export {
 
     method discover(Str $path, Bool $across-fs = False, Str $ceiling-dirs = '') {
         my $git-buf = GitBuffer.new();
-        my $ret = discover-repo($git-buf, $path, $across-fs.Int, $ceiling-dirs);
-        if $ret != 0 {
-            my $message = Git2.last-error();
-            die $message if $message;;
-            die "failed to discover repository, but no libgit2 error message was found. libgit2 return code: $ret";
-        }
+
+        call-with-error('git_repository_discover', sub {
+            discover-repo($git-buf, $path, $across-fs.Int, $ceiling-dirs);
+        });
+
         return $git-buf.ptr;
     }
 }

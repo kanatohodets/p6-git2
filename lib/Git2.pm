@@ -17,6 +17,15 @@ sub prefix:<&-in-c >($native-thing) is export(:util) {
     return $arr;
 }
 
+sub call-with-error($name, &sub) is export(:util) {
+    my $ret = &sub.();
+    if $ret != 0 {
+        my $message = Git2.last-error();
+        die $message if $message;;
+        die "$name failed, but no libgit2 error message was found. libgit2 return code: $ret";
+    }
+}
+
 sub create-flag-defs(@flags) is export(:util) {
     @flags.kv.map(-> $index, $flag {$flag => 2 ** $index});
 }
