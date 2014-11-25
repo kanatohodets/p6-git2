@@ -23,9 +23,9 @@ class Sig is export {
 
     method default(Repository $repo) {
         my $sig = &-in-c GitSignature.new();
-        call-with-error('git_signature_default', sub {
-            default-sig($sig, *-in-c $repo.repo-ptr);
-        });
+
+        call-with-error(&default-sig, [$sig, *-in-c $repo.repo-ptr]);
+
         self.bless(sig => *-in-c $sig);
     }
 
@@ -36,9 +36,9 @@ class Sig is export {
 
     method now($name, $email) {
         my $sig = &-in-c GitSignature.new();
-        call-with-error('git_signature_now', sub {
-            sig-now($sig, $name, $email);
-        });
+
+        call-with-error(&sig-now, [$sig, $name, $email]);
+
         self.bless(sig => *-in-c $sig);
     }
 
@@ -58,9 +58,9 @@ class Sig is export {
 
     method new($name, $email, $time = now.to-posix[0].Int, $offset = 0) {
         my $sig = &-in-c GitSignature.new();
-        call-with-error('git_signature_new', sub {
-            new-sig($sig, $name, $email, $time, $offset);
-        });
+
+        call-with-error(&new-sig, [$sig, $name, $email, $time, $offset]);
+
         self.bless(sig => *-in-c $sig);
     }
 }

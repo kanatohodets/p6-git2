@@ -22,9 +22,7 @@ class Repository is export {
         my $flag-mask = create-flag-mask %init-flags, @flags;
         my $init-options = InitOptions.new(version => 1, flags => $flag-mask);
 
-        call-with-error('git_repository_init', sub {
-            init-repo-ext($repo, $path, $init-options);
-        });
+        call-with-error(&init-repo-ext, [$repo, $path, $init-options]);
 
         Repository.new(repo-ptr => $repo);
     }
@@ -39,9 +37,7 @@ class Repository is export {
     method clone (Str $url, Str $path) {
         my $repo := &-in-c GitRepo;
 
-        call-with-error('git_clone', sub {
-            clone-repo($repo, $url, $path, OpaquePointer.new());
-        });
+        call-with-error(&clone-repo, [$repo, $url, $path, OpaquePointer.new()]);
 
         return Repository.new(repo-ptr => $repo);
     }
@@ -55,9 +51,7 @@ class Repository is export {
         my $repo = &-in-c GitRepo;
         my $flag-mask = create-flag-mask %open-flags, @flags;
 
-        call-with-error('git_repository_open', sub {
-            open-repo-ext($repo, $path, $flag-mask, $ceiling-dirs);
-        });
+        call-with-error(&open-repo-ext, [$repo, $path, $flag-mask, $ceiling-dirs]);
 
         return Repository.new(repo-ptr => $repo);
     }
@@ -100,9 +94,7 @@ class Repository is export {
     method discover(Str $path, Bool $across-fs = False, Str $ceiling-dirs = '') {
         my $git-buf = GitBuffer.new();
 
-        call-with-error('git_repository_discover', sub {
-            discover-repo($git-buf, $path, $across-fs.Int, $ceiling-dirs);
-        });
+        call-with-error(&discover-repo, [$git-buf, $path, $across-fs.Int, $ceiling-dirs]);
 
         return $git-buf.ptr;
     }

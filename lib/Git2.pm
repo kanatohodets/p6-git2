@@ -17,12 +17,13 @@ sub prefix:<&-in-c >($native-thing) is export(:util) {
     return $arr;
 }
 
-sub call-with-error($name, &sub) is export(:util) {
-    my $ret = &sub.();
+sub call-with-error(&native-sub, @params) is export(:util) {
+    my $symbol = &native-sub.native_symbol;
+    my $ret = &native-sub.(|@params);
     if $ret != 0 {
         my $message = Git2.last-error();
         die $message if $message;;
-        die "$name failed, but no libgit2 error message was found. libgit2 return code: $ret";
+        die "$symbol failed, but no libgit2 error message was found. libgit2 return code: $ret";
     }
 }
 
