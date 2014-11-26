@@ -2,16 +2,11 @@ use v6;
 use NativeCall;
 use Git2 :util;
 use Git2::Repository;
+use Git2::Signature::Defs;
 
 module Git2::Signature;
 
 class Sig is export {
-    my class GitSignature is repr('CStruct') {
-        has Str $.name;
-        has Str $.email;
-        has int64 $.time;
-    }
-
     has $!sig handles <name email time>;
 
     submethod BUILD(:$!sig) { }
